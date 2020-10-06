@@ -325,7 +325,7 @@ int main() {
     get_available_hosts(null, &t, config, available_hosts);
 
     if (available_hosts.empty()) {
-        std::cerr << "No hosts available to listen to." << std::endl;
+        std::cerr << "No hosts available to forward requests to." << std::endl;
         exit(1);
     }
 
