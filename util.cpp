@@ -19,7 +19,7 @@ int get_interval(std::map<std::string, std::string> &config) {
 }
 
 void read_config(std::map<std::string, std::string> &config) {
-    std::ifstream file("proxy.conf");
+    std::ifstream file("/etc/oplb/proxy.conf");
     if (file.is_open()) {
         std::string line;
         while (getline(file, line)) {
