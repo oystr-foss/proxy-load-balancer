@@ -19,3 +19,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Libraries licenses:
+
+Boost:
+
+//          Copyright Joe Coder 2004 - 2006.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          https://www.boost.org/LICENSE_1_0.txt)
+
+
+Curl:
+
+// Copyright (c) 1996 - 2020, Daniel Stenberg, <daniel@haxx.se>, and many
+// contributors, see the THANKS file.
+//
+// All rights reserved.
+// https://github.com/curl/curl/blob/master/COPYING
+
+JsonCpp:
+
+// Copyright (c) 2007-2010 Baptiste Lepilleur and The JsonCpp Authors
+//
+// https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
