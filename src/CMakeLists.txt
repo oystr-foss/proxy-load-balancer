@@ -3,7 +3,7 @@ project(oplb VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "-pedantic -ansi -Wall -Wextra -Werror -O3")
+set(CMAKE_CXX_FLAGS "-pedantic -ansi -Wall -Wextra -O3")
 
 add_executable(oplb main.cpp util.h util.cpp host.cpp host.h ../proxy.conf)
 

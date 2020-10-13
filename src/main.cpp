@@ -17,7 +17,7 @@
 
 #include <curl/curl.h>
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 #include <wait.h>
 #include <ctime>
 
