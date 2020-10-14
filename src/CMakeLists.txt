@@ -18,6 +18,7 @@ target_link_libraries(oplb boost_thread)
 target_link_libraries(oplb boost_system)
 target_link_libraries(oplb curl)
 target_link_libraries(oplb jsoncpp)
+target_link_libraries(oplb rt)
 
 install(TARGETS oplb DESTINATION /usr/bin COMPONENT binaries)
 install(FILES ../proxy.conf DESTINATION /etc/oplb COMPONENT config)
