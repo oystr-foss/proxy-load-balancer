@@ -12,7 +12,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/chrono.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/asio/io_service.hpp>
@@ -333,7 +333,7 @@ int main() {
             exit(1);
         }
         // wait for N + 2 seconds and then check again
-        boost::this_thread::sleep_for(boost::chrono::seconds(get_interval(config) + 2));
+        boost::this_thread::sleep(boost::posix_time::seconds(get_interval(config) + 2));
     }
 
     try {
