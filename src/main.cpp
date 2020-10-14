@@ -249,6 +249,7 @@ namespace tcp_proxy {
 
         private:
             void handle_accept(const boost::system::error_code &error) {
+                std::cout << available_hosts_.size() << std::endl;
                 if (available_hosts_.empty()) {
                     std::cout << "No hosts available to forward requests to." << std::endl;
                     accept_connections();
@@ -367,12 +368,13 @@ void get_available_hosts(const boost::system::error_code & /*e*/, timer *schedul
         curl_easy_cleanup(curl);
 
         if (http_code != 200) {
-            std::cerr << "Non-200 response (" << http_code << "): " << *http_data << std::endl;
+            std::cerr << "Non-200 response (" << http_code << "): " << http_data->c_str() << std::endl;
         } else {
             Json::Value data;
             Json::Reader reader;
 
             if (reader.parse(*http_data, data)) {
+                std::cout << data << std::endl;
                 available_hosts.clear();
                 for (auto item : data) {
                     const std::string host(item["host"].asString());
@@ -380,10 +382,10 @@ void get_available_hosts(const boost::system::error_code & /*e*/, timer *schedul
                     const Host hostObj(host, port);
 
                     available_hosts.push_back(hostObj);
+                    std::cout << available_hosts.size() << std::endl;
                 }
             } else {
-                std::cout << "Non JSON response:" << std::endl;
-                std::cout << *http_data << std::endl;
+                std::cout << "Non JSON response: " << http_data->c_str() << std::endl;
             }
         }
     }
