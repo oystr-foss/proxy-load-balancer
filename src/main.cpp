@@ -287,7 +287,7 @@ namespace tcp_proxy {
             ptr_type session_;
             pid_t ppid;
             boost::asio::signal_set signal_;
-            std::vector<Host> available_hosts_;
+            std::vector<Host> &available_hosts_;
         };
     };
 }
