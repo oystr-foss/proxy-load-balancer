@@ -236,10 +236,6 @@ namespace tcp_proxy {
             bool accept_connections() {
                 try {
                     session_ = boost::shared_ptr<bridge>(new bridge(io_service_));
-                    if(available_hosts_.empty()) {
-                        session_->downstream_socket().close();
-                        return true;
-                    }
                     acceptor_.async_accept(session_->downstream_socket(),
                                            boost::bind(&acceptor::handle_accept,
                                                        this,
@@ -253,7 +249,10 @@ namespace tcp_proxy {
 
         private:
             void handle_accept(const boost::system::error_code &error) {
-                if (!error) {
+                if (available_hosts_.empty()) {
+                    std::cout << "No hosts available to forward requests to." << std::endl;
+                    accept_connections();
+                } else if (!error) {
                     unsigned short index = random() % available_hosts_.size();
                     const std::string host(available_hosts_[index].host);
                     const unsigned short port(available_hosts_[index].port);
