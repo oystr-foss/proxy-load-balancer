@@ -12,9 +12,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/asio/io_service.hpp>
 
 #include <curl/curl.h>
@@ -325,12 +323,6 @@ int main() {
 
     std::vector<Host> available_hosts;
     get_available_hosts(null, &t, config, available_hosts);
-
-    while (available_hosts.empty()) {
-        // wait for N + 2 seconds and then check again
-        std::cerr << "Waiting for any host to become available to forward requests to." << std::endl;
-        boost::this_thread::sleep(boost::posix_time::seconds(get_interval(config) + 2));
-    }
 
     try {
         tcp_proxy::bridge::acceptor acceptor(ios, local_host, local_port, &available_hosts);
