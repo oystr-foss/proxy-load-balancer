@@ -1,8 +1,8 @@
-# olpb (Oystr Proxy - Load Balancer)
+# oplb (Oystr Proxy - Load Balancer)
 
 [![badge](https://img.shields.io/badge/license-MIT-blue)](https://github.com/oystr-foss/proxy-load-balancer/blob/main/LICENSE)
 
-Olpb is a dynamic proxy load balancer that enables us to handle as many ephemeral clients as possible, while being careless about what discovery backend is being used.
+oplb is a dynamic proxy load balancer that enables us to handle as many ephemeral clients as possible, while being careless about what discovery backend is being used.
 
 ### Requirements
 
