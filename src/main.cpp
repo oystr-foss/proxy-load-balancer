@@ -211,12 +211,12 @@ namespace tcp_proxy {
         public:
             acceptor(boost::asio::io_service &io_service,
                      const std::string &local_host, unsigned short local_port,
-                     std::vector<Host> *available_hosts)
+                     std::vector<Host> &available_hosts)
                     : io_service_(io_service),
                       localhost_address(boost::asio::ip::address_v4::from_string(local_host)),
                       acceptor_(io_service_, ip::tcp::endpoint(localhost_address, local_port)),
                       signal_(io_service, SIGCHLD),
-                      available_hosts_(*available_hosts) {
+                      available_hosts_(available_hosts) {
                 wait_for_signal();
                 accept_connections();
             }
@@ -328,7 +328,7 @@ int main() {
     get_available_hosts(null, &t, config, available_hosts);
 
     try {
-        tcp_proxy::bridge::acceptor acceptor(ios, local_host, local_port, &available_hosts);
+        tcp_proxy::bridge::acceptor acceptor(ios, local_host, local_port, available_hosts);
         std::cout << "Listening on: " << local_host << ":" << local_port << "\n" << std::endl;
 
         ios.run();
