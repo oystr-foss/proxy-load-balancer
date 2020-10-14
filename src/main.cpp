@@ -235,6 +235,11 @@ namespace tcp_proxy {
 
             bool accept_connections() {
                 try {
+                    if(available_hosts_.empty()) {
+                        session_->downstream_socket().close();
+                        return true;
+                    }
+
                     session_ = boost::shared_ptr<bridge>(new bridge(io_service_));
                     acceptor_.async_accept(session_->downstream_socket(),
                                            boost::bind(&acceptor::handle_accept,
