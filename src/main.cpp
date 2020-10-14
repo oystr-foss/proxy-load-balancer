@@ -249,11 +249,12 @@ namespace tcp_proxy {
 
         private:
             void handle_accept(const boost::system::error_code &error) {
-                std::cout << available_hosts_.size() << std::endl;
-                if (available_hosts_.empty()) {
-                    std::cout << "No hosts available to forward requests to." << std::endl;
-                    accept_connections();
-                } else if (!error) {
+                if (!error) {
+                    if ((&available_hosts_)->empty()) {
+                        std::cout << "No hosts available to forward requests to." << std::endl;
+                        accept_connections();
+                        return;
+                    }
                     unsigned short index = random() % available_hosts_.size();
                     const std::string host(available_hosts_[index].host);
                     const unsigned short port(available_hosts_[index].port);
@@ -374,7 +375,6 @@ void get_available_hosts(const boost::system::error_code & /*e*/, timer *schedul
             Json::Reader reader;
 
             if (reader.parse(*http_data, data)) {
-                std::cout << data << std::endl;
                 available_hosts.clear();
                 for (auto item : data) {
                     const std::string host(item["host"].asString());
@@ -382,7 +382,6 @@ void get_available_hosts(const boost::system::error_code & /*e*/, timer *schedul
                     const Host hostObj(host, port);
 
                     available_hosts.push_back(hostObj);
-                    std::cout << available_hosts.size() << std::endl;
                 }
             } else {
                 std::cout << "Non JSON response: " << http_data->c_str() << std::endl;
