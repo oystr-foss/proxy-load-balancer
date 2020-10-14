@@ -12,7 +12,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/chrono.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
 #include <boost/asio/io_service.hpp>
 
 #include <curl/curl.h>
@@ -324,9 +326,14 @@ int main() {
     std::vector<Host> available_hosts;
     get_available_hosts(null, &t, config, available_hosts);
 
-    if (available_hosts.empty()) {
-        std::cerr << "No hosts available to forward requests to." << std::endl;
-        exit(1);
+    int i = 0;
+    while (available_hosts.empty()) {
+        if(i > 3) {
+            std::cerr << "No hosts available to forward requests to." << std::endl;
+            exit(1);
+        }
+        // wait for N + 2 seconds and then check again
+        boost::this_thread::sleep_for(boost::chrono::seconds(get_interval(config) + 2));
     }
 
     try {
