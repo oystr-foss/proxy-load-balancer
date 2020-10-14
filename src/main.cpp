@@ -326,13 +326,9 @@ int main() {
     std::vector<Host> available_hosts;
     get_available_hosts(null, &t, config, available_hosts);
 
-    int i = 0;
     while (available_hosts.empty()) {
-        if(i > 3) {
-            std::cerr << "No hosts available to forward requests to." << std::endl;
-            exit(1);
-        }
         // wait for N + 2 seconds and then check again
+        std::cerr << "Waiting for any host to become available to forward requests to." << std::endl;
         boost::this_thread::sleep(boost::posix_time::seconds(get_interval(config) + 2));
     }
 
