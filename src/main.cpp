@@ -237,7 +237,8 @@ namespace tcp_proxy {
                 try {
                     session_ = boost::shared_ptr<bridge>(new bridge(io_service_));
                     if(available_hosts_.empty()) {
-                        session_->close();
+                        session_->downstream_socket().close();
+                        acceptor_.close();
                         return true;
                     }
                     acceptor_.async_accept(session_->downstream_socket(),
