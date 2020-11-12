@@ -48,7 +48,7 @@ public:
     template<class T, class U>
     void schedule(const T &fun, U &param) {
         this->set_interval();
-        scheduler.async_wait(boost::bind(fun, boost::asio::placeholders::error, this, config, param));
+        scheduler.async_wait(boost::bind(fun, boost::asio::placeholders::error, this, config, boost::ref(param)));
     }
 
 private:
@@ -198,7 +198,7 @@ namespace tcp_proxy {
         }
 
         enum {
-            max_data_length = 36864 // 36KB
+            max_data_length = 8196 // 8KB
         };
         unsigned char downstream_data_[max_data_length];
         unsigned char upstream_data_[max_data_length];
@@ -211,12 +211,14 @@ namespace tcp_proxy {
         public:
             acceptor(boost::asio::io_service &io_service,
                      const std::string &local_host, unsigned short local_port,
-                     std::vector<Host> &available_hosts)
+                     timer &t,
+                     std::map<std::string, std::string> &config)
                     : io_service_(io_service),
                       localhost_address(boost::asio::ip::address_v4::from_string(local_host)),
                       acceptor_(io_service_, ip::tcp::endpoint(localhost_address, local_port)),
-                      signal_(io_service, SIGCHLD),
-                      available_hosts_(available_hosts) {
+                      signal_(io_service, SIGCHLD) {
+                const boost::system::error_code null;
+                get_available_hosts(null, &t, config, available_hosts_);
                 wait_for_signal();
                 accept_connections();
             }
@@ -250,8 +252,12 @@ namespace tcp_proxy {
         private:
             void handle_accept(const boost::system::error_code &error) {
                 if (!error) {
-                    if ((&available_hosts_)->empty()) {
-                        std::cout << "No hosts available to forward requests to." << std::endl;
+                    if (available_hosts_.empty()) {
+                        std::string message("No hosts available to forward requests to.");
+                        std::cout << message << std::endl;
+                        std::string contentLength = std::to_string(message.length());
+                        std::string response = "HTTP/1.1 503 Service Unavailable\nX-Oystr-Proxy: true\nContent-Type: text/html; charset=utf-8\nContent-Length: " + contentLength + "\n\n" + message;
+                        session_->downstream_socket().write_some(boost::asio::buffer(response));
                         accept_connections();
                         return;
                     }
@@ -263,7 +269,6 @@ namespace tcp_proxy {
                     auto pid = fork();
                     if (pid == 0) {
                         io_service_.notify_fork(boost::asio::io_service::fork_child);
-
                         std::cout << "[" << get_date("%d/%m/%Y %H:%M:%S") << "] " << session_->downstream_socket_.remote_endpoint() << " -> " << host << ":" << port << std::endl;
 
                         acceptor_.close();
@@ -288,7 +293,7 @@ namespace tcp_proxy {
             ptr_type session_;
             pid_t ppid;
             boost::asio::signal_set signal_;
-            std::vector<Host> &available_hosts_;
+            std::vector<Host> available_hosts_;
         };
     };
 }
@@ -321,16 +326,11 @@ int main() {
         exit(1);
     }
 
-    const boost::system::error_code null;
-
     boost::asio::io_service ios;
     timer t(ios, config);
 
-    std::vector<Host> available_hosts;
-    get_available_hosts(null, &t, config, available_hosts);
-
     try {
-        tcp_proxy::bridge::acceptor acceptor(ios, local_host, local_port, available_hosts);
+        tcp_proxy::bridge::acceptor acceptor(ios, local_host, local_port, t, config);
         std::cout << "Listening on: " << local_host << ":" << local_port << "\n" << std::endl;
 
         ios.run();
