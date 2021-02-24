@@ -195,6 +195,7 @@ namespace tcp_proxy {
             if (upstream_socket_.is_open()) {
                 upstream_socket_.close();
             }
+            exit(0);
         }
 
         enum {
