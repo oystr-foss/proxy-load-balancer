@@ -65,8 +65,6 @@ By default, all logs are sent to stdin/stderr but in the upcoming updates we are
 
 ### TODO
 
-* Daemonize;
-* Use a logging driver and log to /var/log/oplb.log;
 * Create/use an http client;
 * Limit forking and reuse childs instead of killing them;
-* Refactor code to be more maintainable.
+* Add tests.
