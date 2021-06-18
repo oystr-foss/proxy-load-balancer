@@ -2,7 +2,7 @@
 
 [![badge](https://img.shields.io/badge/license-MIT-blue)](https://github.com/oystr-foss/proxy-load-balancer/blob/main/LICENSE)
 
-oplb is a dynamic proxy load balancer that enables us to handle as many ephemeral clients as possible, while being careless about what discovery backend is being used.
+oplb is a dynamic proxy load balancer that enables us to handle as many ephemeral clients as possible, while being careless about what discovery backend is being used. All requests are sharded using a consistent hashing algorithm based in a Java implementation by [rafaelsilverioit](https://github.com/rafaelsilverioit/sharder).
 
 ### Requirements
 
@@ -61,7 +61,7 @@ Listening on: 0.0.0.0:8080
 ```
 
 ### Debugging
-By default, all logs are sent to stdin/stderr but in the upcoming updates we are going to store them in `/var/log/oplb.log`.
+By default, all logs are sent to stdin/stderr but you can set `log_info=<PATH>` to store it in a custom file.
 
 ### TODO
 
