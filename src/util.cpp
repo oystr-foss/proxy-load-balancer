@@ -1,4 +1,4 @@
-#include "util.h"
+#include "util.hpp"
 #include <fstream>
 #include <algorithm>
 #include <ctime>
@@ -18,8 +18,8 @@ int get_interval(std::map<std::string, std::string> &config) {
     return 60;
 }
 
-void read_config(std::map<std::string, std::string> &config) {
-    std::ifstream file("/etc/oplb/proxy.conf");
+void read_config(std::map<std::string, std::string> &config, const std::string& config_file) {
+    std::ifstream file(config_file);
     if (file.is_open()) {
         std::string line;
         while (getline(file, line)) {
@@ -29,9 +29,9 @@ void read_config(std::map<std::string, std::string> &config) {
                 continue;
             }
 
-            auto delimiterPos = line.find('=');
-            auto name = line.substr(0, delimiterPos);
-            auto val = line.substr(delimiterPos + 1);
+            auto delimiter_pos = line.find('=');
+            auto name = line.substr(0, delimiter_pos);
+            auto val = line.substr(delimiter_pos + 1);
 
             config[name] = val;
         }
@@ -39,6 +39,10 @@ void read_config(std::map<std::string, std::string> &config) {
         std::cerr << "proxy.conf not found" << std::endl;
         exit(1);
     }
+}
+
+void read_config(std::map<std::string, std::string> &config) {
+    read_config(config, "/etc/oplb/proxy.conf");
 }
 
 std::string get_date() {
