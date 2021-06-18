@@ -15,7 +15,7 @@ oplb is a dynamic proxy load balancer that enables us to handle as many ephemera
 
 ### Building from source
 
-Just follow the steps below:
+Just follow the steps below on a Docker image based on Alpine:
 ```bash
 $ git clone https://github.com/oystr-foss/proxy-load-balancer oplb
 $ cd oplb
