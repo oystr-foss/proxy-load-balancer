@@ -24,7 +24,7 @@
 
 #include <curl/curl.h>
 
-#include <json/json.h>
+#include <jsoncpp/json/json.h>
 #include <wait.h>
 #include <ctime>
 
@@ -78,7 +78,6 @@ namespace tcp_proxy {
         };
         unsigned char downstream_data_[max_data_length];
         unsigned char upstream_data_[max_data_length];
-        bool closed = false;
 
         boost::mutex mutex_;
 
@@ -92,8 +91,6 @@ namespace tcp_proxy {
                      std::map<std::string, std::string> &config,
                      ConsistentHash& sharder);
 
-            void wait_for_signal();
-            void handle_signal_wait();
             bool accept_connections();
 
         private:
@@ -104,8 +101,6 @@ namespace tcp_proxy {
             ip::address_v4 localhost_address;
             ip::tcp::acceptor acceptor_;
             ptr_type session_;
-            pid_t ppid;
-            boost::asio::signal_set signal_;
             ConsistentHash& sharder_;
 
         };

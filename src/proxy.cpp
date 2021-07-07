@@ -70,11 +70,7 @@ namespace tcp_proxy {
                                     shared_from_this(),
                                     boost::asio::placeholders::error));
         } else {
-            if (!closed) {
-                closed = true;
-                close();
-                exit(0);
-            }
+            close();
         }
     }
 
@@ -86,11 +82,7 @@ namespace tcp_proxy {
                                 boost::asio::placeholders::error,
                                 boost::asio::placeholders::bytes_transferred));
         } else {
-            if (!closed) {
-                closed = true;
-                close();
-                exit(0);
-            }
+            close();
         }
     }
 
@@ -100,11 +92,7 @@ namespace tcp_proxy {
                         boost::bind(&bridge::handle_upstream_write, shared_from_this(),
                                     boost::asio::placeholders::error));
         } else {
-            if (!closed) {
-                closed = true;
-                close();
-                exit(0);
-            }
+            close();
         }
     }
 
@@ -116,11 +104,7 @@ namespace tcp_proxy {
                                 boost::asio::placeholders::error,
                                 boost::asio::placeholders::bytes_transferred));
         } else {
-            if (!closed) {
-                closed = true;
-                close();
-                exit(0);
-            }
+            close();
         }
     }
 
@@ -134,7 +118,6 @@ namespace tcp_proxy {
         if (upstream_socket_.is_open()) {
             upstream_socket_.close();
         }
-        exit(0);
     }
 
     bridge::acceptor::acceptor(
@@ -148,26 +131,11 @@ namespace tcp_proxy {
         io_service_(io_service),
         localhost_address(boost::asio::ip::address_v4::from_string(local_host)),
         acceptor_(io_service_, ip::tcp::endpoint(localhost_address, local_port)),
-        ppid(-1),
-        signal_(io_service, SIGCHLD),
         sharder_(sharder) {
 
         const boost::system::error_code null;
         get_available_nodes(null, &t, config, sharder_);
-        wait_for_signal();
         accept_connections();
-    }
-
-    void bridge::acceptor::wait_for_signal() {
-        signal_.async_wait(boost::bind(&acceptor::handle_signal_wait, this));
-    }
-
-    void bridge::acceptor::handle_signal_wait() {
-        if (getpid() == ppid) {
-            int status = 0;
-            waitpid(-1, &status, WNOHANG > 0);
-            wait_for_signal();
-        }
     }
 
     bool bridge::acceptor::accept_connections() {
@@ -186,35 +154,24 @@ namespace tcp_proxy {
 
     void bridge::acceptor::handle_accept(const boost::system::error_code &error) {
         if (!error) {
-            io_service_.notify_fork(boost::asio::io_service::fork_prepare);
-            auto pid = fork();
+            auto remote = session_->downstream_socket_.remote_endpoint().address().to_string();
+            auto n = sharder_.route(remote);
 
-            if (pid == 0) {
-                auto remote = session_->downstream_socket_.remote_endpoint().address().to_string();
-                auto n = sharder_.route(remote);
+            if(!n.has_value()) {
+                service_unavailable();
+                return;
+            }
 
-                if(!n.has_value()) {
-                    service_unavailable();
-                    return;
-                }
+            const std::string host(n.value()->get_host());
+            const unsigned short port(n.value()->get_port());
 
-                const std::string host(n.value()->get_host());
-                const unsigned short port(n.value()->get_port());
+            std::cout << "[" << get_date("%d/%m/%Y %H:%M:%S") << "] " <<
+                session_->downstream_socket_.remote_endpoint() << " -> " << host << ":" << port << std::endl;
 
-                io_service_.notify_fork(boost::asio::io_service::fork_child);
-                std::cout << "[" << get_date("%d/%m/%Y %H:%M:%S") << "] " <<
-                    session_->downstream_socket_.remote_endpoint() << " -> " << host << ":" << port << std::endl;
+            session_->start(host, port);
 
-                acceptor_.close();
-                signal_.cancel();
-                session_->start(host, port);
-            } else {
-                auto remote = session_->downstream_socket_.remote_endpoint().address().to_string();
-                io_service_.notify_fork(boost::asio::io_service::fork_parent);
-                ppid = getpid();
-                int status = 0;
-                waitpid(pid, &status, WNOHANG > 0);
-                accept_connections();
+            if(!accept_connections()) {
+                std::cerr << "Failed to accept connections." << std::endl;
             }
         } else {
             std::cerr << "Error: " << error.message() << std::endl;
@@ -277,7 +234,7 @@ void get_available_nodes(const boost::system::error_code & /*e*/, timer *schedul
                     ServiceNode node(service_id, host, port);
 
                     if(sharder.get_existing_replicas(node) == 0) {
-                        sharder.add(node, 10);
+                        sharder.add(node, 5);
                     }
                 }
             } else {
