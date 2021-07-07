@@ -55,7 +55,7 @@ void ConsistentHash::add(ServiceNode& node, long virtual_node_count) {
         long hash = digest.to_md5_hash(v_node->get_key());
         ring[hash] = v_node;
     }
-    std::cout << "\nAdded! " << node.get_key() << "\n" << std::endl;
+    std::cout << "Added! " << node.get_key() << std::endl;
 }
 
 void ConsistentHash::remove(ServiceNode& node) {

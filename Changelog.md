@@ -10,3 +10,8 @@
     * Implemented consistent hashing to shard requests for suitable peers (ref: https://github.com/rafaelsilverioit/sharder);
     * If there's a log_file key in proxy.conf, then we log everything in there.
 
+### Release: v1.1.0
+    Who: rafaelsilverioit (https://github.com/rafaelsilverioit)
+    Date: 07-07-2021
+    Description:
+    * Getting rid of forking code as io_service takes care of concurrency for us.
