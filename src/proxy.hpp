@@ -24,7 +24,12 @@
 
 #include <curl/curl.h>
 
+#if __has_include(<json/json.h>)
 #include <json/json.h>
+#else
+#include <jsoncpp/json/json.h>
+#endif
+
 #include <wait.h>
 #include <ctime>
 
