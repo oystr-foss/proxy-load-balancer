@@ -31,6 +31,7 @@ The default configuration looks like:
 # general config
 host=0.0.0.0
 port=8080
+log_info=<PATH>
 
 # interval in seconds between each query to the discovery backend.
 refresh_interval=60
@@ -66,5 +67,4 @@ By default, all logs are sent to stdin/stderr but you can set `log_info=<PATH>` 
 ### TODO
 
 * Create/use an http client;
-* Limit forking and reuse childs instead of killing them;
 * Add tests.
