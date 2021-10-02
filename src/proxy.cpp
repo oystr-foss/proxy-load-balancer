@@ -155,7 +155,8 @@ namespace tcp_proxy {
     void bridge::acceptor::handle_accept(const boost::system::error_code &error) {
         if (!error) {
             auto remote = session_->downstream_socket_.remote_endpoint().address().to_string();
-            auto n = sharder_.route(remote);
+            auto time = get_date("%Y%m%d-%H");
+            auto n = sharder_.route(remote + time);
 
             if(!n.has_value()) {
                 service_unavailable();
