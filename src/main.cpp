@@ -17,13 +17,13 @@
 int main(int argc, char *argv[]) {
     std::map<std::string, std::string> config;
 
-    if(argc > 1) {
+    if (argc > 1) {
         read_config(config, argv[1]);
     } else {
         read_config(config);
     }
 
-    if(config.count("log_file") >= 1) {
+    if (config.count("log_file") >= 1) {
         // Logging to specified file.
         freopen(config["log_file"].c_str(), "w", stdout);
         freopen(config["log_file"].c_str(), "w", stderr);
@@ -52,15 +52,19 @@ int main(int argc, char *argv[]) {
     boost::asio::io_service ios;
     timer t(ios, config);
 
-    try {
-        auto sharder = ConsistentHash();
-        tcp_proxy::bridge::acceptor acceptor(ios, local_host, local_port, t, config, sharder);
-        std::cout << "Listening on: " << local_host << ":" << local_port << "\n" << std::endl;
+    // in case of fatal errors, just start all over again.
+    while (true) {
+        try {
+            auto sharder = ConsistentHash();
+            tcp_proxy::bridge::acceptor acceptor(ios, local_host, local_port, t, config, sharder);
+            std::cout << "Listening on: " << local_host << ":" << local_port << "\n" << std::endl;
 
-        ios.run();
-    } catch (std::exception &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return 1;
+            ios.run();
+        } catch (std::exception & e)
+        {
+            std::cerr << "Error: " << e.what() << std::endl;
+            return 1;
+        }
     }
 
     return 0;
