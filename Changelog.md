@@ -15,3 +15,10 @@
     Date: 07-07-2021
     Description:
     * Getting rid of forking code as io_service takes care of concurrency for us.
+
+### Release: v1.2.0
+    Who: rafaelsilverioit (https://github.com/rafaelsilverioit)
+    Date: 29-12-2021
+    Description:
+    * Avoiding process termination in case of fatal errors.
+

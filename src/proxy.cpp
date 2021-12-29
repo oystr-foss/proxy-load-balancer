@@ -58,7 +58,15 @@ namespace tcp_proxy {
                                 boost::asio::placeholders::error,
                                 boost::asio::placeholders::bytes_transferred));
         } else {
-            std::cout << "upstream_connect: " << error.message() << std::endl;
+            std::cout << "[ERROR] upstream_connect: " << error.message() << std::endl;
+
+            if (!upstream_socket_.is_open()) {
+                std::cout << "[ERROR] upstream socket not connected " << std::endl;
+            }
+
+            if (!downstream_socket_.is_open()) {
+                std::cout << "[ERROR] downstream socket not connected" << std::endl;
+            }
             close();
         }
     }
@@ -154,8 +162,19 @@ namespace tcp_proxy {
 
     void bridge::acceptor::handle_accept(const boost::system::error_code &error) {
         if (!error) {
-            auto remote = session_->downstream_socket_.remote_endpoint().address().to_string();
-            auto n = sharder_.route(remote);
+            boost::system::error_code client_error;
+            // using synchronous error message for convenience as we may call session_->close() safely.
+            const ip::basic_endpoint <ip::tcp> &client_socket = session_->downstream_socket_.remote_endpoint(client_error);
+
+            if(client_error) {
+                session_->close();
+                accept_connections();
+                return;
+            }
+
+            auto remote = client_socket.address().to_string();
+            auto time = get_date("%Y%m%d-%H");
+            auto n = sharder_.route(remote + time);
 
             if(!n.has_value()) {
                 service_unavailable();
@@ -166,7 +185,7 @@ namespace tcp_proxy {
             const unsigned short port(n.value()->get_port());
 
             std::cout << "[" << get_date("%d/%m/%Y %H:%M:%S") << "] " <<
-                session_->downstream_socket_.remote_endpoint() << " -> " << host << ":" << port << std::endl;
+                      client_socket << " -> " << host << ":" << port << std::endl;
 
             session_->start(host, port);
 
