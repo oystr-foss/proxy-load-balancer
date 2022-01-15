@@ -10,7 +10,11 @@ oplb is a dynamic proxy load balancer that enables us to handle as many ephemera
 * C++17
 * cmake
 * libboost-dev
+* libboost-system-dev
+* libboost-thread-dev
 * libcurl4-openssl-dev
+* libssl-dev
+* libcrypto++-dev
 * libjsoncpp-dev
 
 ### Building from source
